@@ -113,6 +113,7 @@ nmap <space>S :CocCommand markdown-preview-enhanced.syncPreview<CR>
 nmap z za
 
 :set backspace=indent,eol,start
+let NERDTreeShowHidden=1
 
 syntax on
 filetype indent on
