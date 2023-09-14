@@ -1,58 +1,38 @@
 call plug#begin('~/.vim/plugged')
 
-    " Autocompletion plugins
-    function! BuildYCM(info)
-        if a:info.status == 'installed' || a:info.force
-            !./install.py
-        endif
-    endfunction
-    Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    "Plug 'OmniSharp/omnisharp-vim'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-    Plug 'https://github.com/preservim/nerdtree'
-    Plug 'morhetz/gruvbox'
+  Plug 'https://github.com/preservim/nerdtree'
 
-    " Plugins for Angular & JS/TS development
-    Plug 'pangloss/vim-javascript'    " JavaScript support
-    Plug 'leafgarland/typescript-vim' " TypeScript syntax
-    Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
+  " Plugins for Angular & JS/TS development
+  Plug 'pangloss/vim-javascript'    " JavaScript support
+  Plug 'leafgarland/typescript-vim' " TypeScript syntax
+  Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
 
-    " " Plugins for C# development
-    " Plug 'jlcrochet/vim-cs'           " C# syntax highlighting
-    " Plug 'jlcrochet/vim-razor'        " cshtml syntax supporting
+  " Plugin for commenting code
+  Plug 'tpope/vim-commentary'
 
-    " " Plugin for ReactJS
-    " Plug 'dense-analysis/ale'
-    " Plug 'HerringtonDarkholme/yats.vim'
+  " Plugin for file icon
+  Plug 'ryanoasis/vim-devicons'
 
-    " " Plugin for Ruby on Rails
-    " Plug 'tpope/vim-rails'
-    " Plug 'MarcWeber/vim-addon-mw-utils' " Dependency for Vim snipmate
-    " Plug 'tomtom/tlib_vim'
-    " Plug 'garbas/vim-snipmate'
+  " Auto Pairs plugin
+  Plug 'jiangmiao/auto-pairs'
 
-    " Plugin for commenting code
-    Plug 'tpope/vim-commentary'
+  " Vim airline
+  Plug 'vim-airline/vim-airline'
 
-    " Plugin for file icon
-    Plug 'ryanoasis/vim-devicons'
+  " Plugin for front-end dev
+  Plug 'AndrewRadev/tagalong.vim'
+  Plug 'alvan/vim-closetag'
 
-    " Auto Pairs plugin
-    Plug 'jiangmiao/auto-pairs'
+  Plug 'styled-components/vim-styled-components' " for reactjs components
 
-    " Plugin for markdown preview
-    Plug 'shime/vim-livedown'
-
-    " Vim airline
-    Plug 'vim-airline/vim-airline'
-
-    " Plugin for front-end dev
-    Plug 'AndrewRadev/tagalong.vim'
-    Plug 'alvan/vim-closetag'
-
-    " Plug 'dense-analysis/ale'
-    Plug 'styled-components/vim-styled-components' " for reactjs components
+  Plug 'fatih/vim-go'
+  Plug 'crusoexia/vim-dracula'
+  Plug 'sainnhe/everforest'
+  Plug 'OmniSharp/omnisharp-vim'
+  Plug 'nickspoons/vim-sharpenup' 
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 
 call plug#end()
 filetype plugin indent on
@@ -67,23 +47,17 @@ filetype plugin indent on
 " " Set this variable to 1 to fix files when you save them.
 " let g:ale_fix_on_save = 1
 
-" nmap <space>p :LivedownToggle<CR>
-nmap <space>P :CocCommand markdown-preview-enhanced.openPreview<CR>
-nmap <space>S :CocCommand markdown-preview-enhanced.syncPreview<CR>
-
-"let g:OmniSharp_server_use_mono = 1
-" let g:snipMate = { 'snippet_version' : 1 }
-
 """ GENERAL CONFIG FOR VIM
-:colorscheme gruvbox
+:colo everforest 
+" let g:dracula_italic = 0
 :set background=dark
 :set autoindent
 :set cindent
 :set smartindent
 :set ma
 " Specify tabstop & shiftwidth to get indent = 2 spaces or 4 spaces
-:set tabstop=4
-:set shiftwidth=4
+:set tabstop=2
+:set shiftwidth=2
 :set splitright "when split vertically it will automatically split on the right
 :set splitbelow "when split horizontally it will pop up below
 :set smarttab
@@ -97,7 +71,7 @@ nmap <space>S :CocCommand markdown-preview-enhanced.syncPreview<CR>
 :set termencoding=utf-8
 :set mouse=a
 :set ttymouse=sgr
-:set visualbell
+:set novisualbell
 :set t_vb=
 :set nocompatible
 
@@ -113,6 +87,16 @@ nmap <space>S :CocCommand markdown-preview-enhanced.syncPreview<CR>
 nmap z za
 
 :set backspace=indent,eol,start
+:set guifont=CaskaydiaCove\ NFM\ Regular:h9
+
+" Deal with unwanted white spaces (show them in red)
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
+
 let NERDTreeShowHidden=1
 
 syntax on
@@ -126,9 +110,36 @@ nmap <silent> <c-l> :wincmd l<CR>
 "press m to bring up selection menu (add file, delete file, ...)
 nnoremap <silent> <expr> <space>t g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
 
+" add or override pattern matches for filetypes
+" these take precedence over the file extensions
+
+let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols = {} " needed
+let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.*cs'] = '#'
+
+" =============== OmniSharp settings start===============
+" OmniSharp won't work without this setting
+filetype plugin on
+
+" Use Roslyin and also better performance than HTTP
+let g:OmniSharp_server_stdio = 1
+let g:omnicomplete_fetch_full_documentation = 1
+
+" Timeout in seconds to wait for a response from the server
+let g:OmniSharp_timeout = 30
+
+" this will make it so any subsequent C# files that you open are using the same solution and you aren't prompted again (so you better choose the right solution the first time around :) )
+let g:OmniSharp_autoselect_existing_sln = 1
+
+let g:OmniSharp_popup_options = {
+\ 'highlight': 'Normal',
+\ 'padding': [1],
+\ 'border': [1]
+\}
+" =============== OmniSharp settings end=================
+
 """ COC SERVER CONFIG
 " CoC extensions
-let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-css', 'coc-html']
+let g:coc_global_extensions = ['coc-tsserver', 'coc-json', 'coc-css', 'coc-html', 'coc-omnisharp']
 
 " Add CoC Prettier if prettier is installed
 if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
@@ -141,7 +152,7 @@ if isdirectory('./node_modules') && isdirectory('./node_modules/eslint')
 endif
 " Having longer updatetime (default is 4000 ms = 4s) leads to noticeable
 " delays and poor user experience
-set updatetime=100
+set updatetime=300
 
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved
@@ -288,3 +299,5 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+:highlight CocFloating ctermbg=0
