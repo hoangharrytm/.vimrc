@@ -18,8 +18,8 @@ call plug#begin('~/.vim/plugged')
   " Auto Pairs plugin
   Plug 'jiangmiao/auto-pairs'
 
-  " Vim airline
-  Plug 'vim-airline/vim-airline'
+  " " Vim airline
+  " Plug 'vim-airline/vim-airline'
 
   " Plugin for front-end dev
   Plug 'AndrewRadev/tagalong.vim'
@@ -32,8 +32,11 @@ call plug#begin('~/.vim/plugged')
   Plug 'sainnhe/everforest'
   Plug 'OmniSharp/omnisharp-vim'
   Plug 'nickspoons/vim-sharpenup' 
-  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 
+  Plug 'junegunn/fzf.vim'
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install'  }
+  
 call plug#end()
 filetype plugin indent on
 
@@ -84,6 +87,7 @@ filetype plugin indent on
 
 :set foldmethod=syntax
 :set foldlevel=99
+:set hlsearch
 nmap z za
 
 :set backspace=indent,eol,start
@@ -105,10 +109,13 @@ nmap <silent> <c-k> :wincmd k<CR>
 nmap <silent> <c-j> :wincmd j<CR>
 nmap <silent> <c-h> :wincmd h<CR>
 nmap <silent> <c-l> :wincmd l<CR>
+nmap <silent> <c-m> :MarkdownPreview<CR>
+nmap <silent> <c-m><c-s> :MarkdownPreviewStop<CR>
 
 "press <space>t to open/close nerdtree
 "press m to bring up selection menu (add file, delete file, ...)
 nnoremap <silent> <expr> <space>t g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
+nnoremap <silent> <C-f><C-f> :FZF<CR>
 
 " add or override pattern matches for filetypes
 " these take precedence over the file extensions
